@@ -11,5 +11,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # ポート番号の設定（SnapDeploy標準）
-EXPOSE 8000
+EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
