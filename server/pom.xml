@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://apache.org" 
          xmlns:xsi="http://w3.org"
          xsi:schemaLocation="http://apache.org http://apache.org">
@@ -38,7 +39,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- 変更した正しいクラス名（GameServer）を指定 -->
+                                    <!-- 正しいメインクラス（GameServer）を指定 -->
                                     <mainClass>GameServer</mainClass>
                                 </transformer>
                             </transformers>
