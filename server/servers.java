@@ -17,7 +17,7 @@ public class GameServer extends WebSocketServer {
 
     @Override
     public void onStart() {
-        System.out.println("Koyeb対応ゲームサーバーがポート " + getPort() + " で起動しました。");
+        System.out.println("Render対応サーバーがポート " + getPort() + " で起動しました。");
     }
 
     @Override
@@ -43,9 +43,9 @@ public class GameServer extends WebSocketServer {
     }
 
     public static void main(String[] args) {
-        // 【重要】Koyebから渡される環境変数PORTを取得する
+        // 【重要】Renderから渡される環境変数PORTを取得する
         String portEnv = System.getenv("PORT");
-        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8887; // なければ8887
+        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8887; // なければローカル用に8887
 
         // 【重要】外部アクセスのためホストは "0.0.0.0" に固定する
         String host = "0.0.0.0"; 
