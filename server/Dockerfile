@@ -1,15 +1,17 @@
-# 1. ビルド環境（Java 17 と Maven を用意）
-FROM maven:3.8.8-eclipse-temurin-17 AS build
+# --- STEP 1: ビルド環境 ---
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
-COPY . .
+COPY pom.xml .
+COPY src ./src
+# テストをスキップして確実にパッケージング
 RUN mvn clean package -DskipTests
 
-# 2. 実行環境（軽量な Java 実行環境を用意）
-FROM eclipse-temurin:17-jre
+# --- STEP 2: 実行環境 ---
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-# target フォルダ内の jar ファイルをアプリとしてコピー
+
+# targetフォルダ内にある、末尾が .jar で終わる成果物を一括でapp.jarとしてコピー（名前の不一致を防ぐ）
 COPY --from=build /app/target/*.jar app.jar
 
-# ポート番号の設定（SnapDeploy標準）
-EXPOSE 8080
+EXPOSE 10000
 CMD ["java", "-jar", "app.jar"]
