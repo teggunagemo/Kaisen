@@ -10,31 +10,35 @@ public class GameServer extends WebSocketServer {
 
     private final List<WebSocket> players = new CopyOnWriteArrayList<>();
 
-    // 変更点: 引数でホスト（0.0.0.0）とポートを受け取るようにする
     public GameServer(String host, int port) {
         super(new InetSocketAddress(host, port));
     }
 
     @Override
     public void onStart() {
-        System.out.println("Render対応サーバーがポート " + getPort() + " で起動しました。");
+        System.out.println("Zeabur対応サーバーがポート " + getPort() + " で起動しました。");
     }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         players.add(conn);
-        System.out.println("プレイヤーが入室しました。現在のプレイヤー数: " + players.size());
+        System.out.println("プレイヤーが入室。現在: " + players.size() + "人");
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         players.remove(conn);
-        System.out.println("プレイヤーが退室しました。現在のプレイヤー数: " + players.size());
+        System.out.println("プレイヤーが退室。現在: " + players.size() + "人");
     }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println("メッセージ受信: " + message);
+        // 【自動スリープ対策用】クライアントからの生存確認（Ping）に反応する
+        if ("ping".equals(message)) {
+            conn.send("pong");
+            return;
+        }
+        System.out.println("受信: " + message);
     }
 
     @Override
@@ -43,14 +47,15 @@ public class GameServer extends WebSocketServer {
     }
 
     public static void main(String[] args) {
-        // 【重要】Renderから渡される環境変数PORTを取得する
+        // 【重要】Zeaburが自動挿入する環境変数 PORT を読み込む
         String portEnv = System.getenv("PORT");
-        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8887; // なければローカル用に8887
+        // Zeaburは内部的に色々なポートを割り当てますが、プログラム側はそれを検知します
+        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8887; 
 
-        // 【重要】外部アクセスのためホストは "0.0.0.0" に固定する
+        // 外部アクセスを許可するため 0.0.0.0 を指定
         String host = "0.0.0.0"; 
 
-        System.out.println("起動ポートを設定中: " + port);
+        System.out.println("ポート設定: " + port);
         GameServer server = new GameServer(host, port);
         server.start();
     }
