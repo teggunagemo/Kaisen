@@ -50,7 +50,7 @@ public class GameServer extends WebSocketServer {
         // 【重要】Zeaburが自動挿入する環境変数 PORT を読み込む
         String portEnv = System.getenv("PORT");
         // Zeaburは内部的に色々なポートを割り当てますが、プログラム側はそれを検知します
-        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8887; 
+        int port = (portEnv != null) ? Integer.parseInt(portEnv) : 10000; 
 
         // 外部アクセスを許可するため 0.0.0.0 を指定
         String host = "0.0.0.0"; 
