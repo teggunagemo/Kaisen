@@ -43,5 +43,9 @@
                 </executions>
             </plugin>
         </plugins>
+
+    <finalName>game-server</finalName> <!-- これを追加 -->
+    <plugins> ... </plugins>
+
     </build>
 </project>
