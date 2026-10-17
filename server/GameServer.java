@@ -49,25 +49,30 @@ public class GameServer extends WebSocketServer {
     public static void main(String[] args) {
         // Renderの標準ポート 10000 に固定
         int port = 10000; 
-
-        // 外部アクセスを許可するため 0.0.0.0 を指定
         String host = "0.0.0.0"; 
 
         System.out.println("Render用ポート固定設定: " + port);
-        
-        // 修正ポイント①: InetSocketAddressの解決方法を安全にする
-        java.net.InetSocketAddress address = new java.net.InetSocketAddress(host, port);
         GameServer server = new GameServer(host, port);
         
-        // 修正ポイント②: バックグラウンド起動ではなく、メインスレッド上で直接サーバーを走らせる
-        System.out.println("サーバーを開始します。接続を完全に待機中...");
+        // 修正ポイント①: 起動時のポート衝突を防ぐため、再利用設定を有効化する
+        server.setReuseAddr(true);
         
-        try {
-            // start() ではなく run() を呼び出すことで、メインプロセスが終了するのを絶対に防ぎます
-            server.run(); 
-        } catch (Exception e) {
-            System.err.println("サーバー実行中に重大なエラーが発生しました: " + e.getMessage());
-            e.printStackTrace();
+        // 修正ポイント②: バックグラウンドで非同期にサーバーを開始（Renderがポートをスキャンできるようにする）
+        System.out.println("サーバーをバックグラウンドで開始します...");
+        server.start();
+
+        // 修正ポイント③: Renderのシステムに「起動完了」を伝えるため、メインスレッドを終了させず永続的に眠らせる
+        System.out.println("ポート " + port + " での起動に成功しました。常時接続待機モードに入ります。");
+        
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                // 1分ごとに生存ログを出しつつ、スレッドを維持する（Renderに生きてることをアピール）
+                Thread.sleep(60000); 
+                System.out.println("[Keep-Alive] サーバーは正常に稼働中です...");
+            } catch (InterruptedException e) {
+                System.err.println("メインスレッドが中断されました: " + e.getMessage());
+                break;
+            }
         }
     }
 }
