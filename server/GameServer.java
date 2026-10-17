@@ -47,7 +47,7 @@ public class GameServer extends WebSocketServer {
     }
 
     public static void main(String[] args) {
-        // 環境変数に頼らず、Renderの標準ポートである 10000 に直接固定する
+        // Renderの標準ポート 10000 に固定
         int port = 10000; 
 
         // 外部アクセスを許可するため 0.0.0.0 を指定
@@ -55,6 +55,20 @@ public class GameServer extends WebSocketServer {
 
         System.out.println("Render用ポート固定設定: " + port);
         GameServer server = new GameServer(host, port);
+        
+        // サーバーを裏で開始（これだけだとメインスレッドが終了してしまう）
         server.start();
+
+        // 【重要】Render上でプログラムが終了しないように、無限ループでスレッドを維持する
+        System.out.println("サーバーが起動しました。接続を待機しています...");
+        while (true) {
+            try {
+                // 1時間（3600000ミリ秒）寝かせるのを繰り返して、プログラムを常時起動させる
+                Thread.sleep(3600000); 
+            } catch (InterruptedException e) {
+                System.err.println("スレッドが中断されました: " + e.getMessage());
+                break;
+            }
+        }
     }
 }
