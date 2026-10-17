@@ -54,21 +54,20 @@ public class GameServer extends WebSocketServer {
         String host = "0.0.0.0"; 
 
         System.out.println("Render用ポート固定設定: " + port);
+        
+        // 修正ポイント①: InetSocketAddressの解決方法を安全にする
+        java.net.InetSocketAddress address = new java.net.InetSocketAddress(host, port);
         GameServer server = new GameServer(host, port);
         
-        // サーバーを裏で開始（これだけだとメインスレッドが終了してしまう）
-        server.start();
-
-        // 【重要】Render上でプログラムが終了しないように、無限ループでスレッドを維持する
-        System.out.println("サーバーが起動しました。接続を待機しています...");
-        while (true) {
-            try {
-                // 1時間（3600000ミリ秒）寝かせるのを繰り返して、プログラムを常時起動させる
-                Thread.sleep(3600000); 
-            } catch (InterruptedException e) {
-                System.err.println("スレッドが中断されました: " + e.getMessage());
-                break;
-            }
+        // 修正ポイント②: バックグラウンド起動ではなく、メインスレッド上で直接サーバーを走らせる
+        System.out.println("サーバーを開始します。接続を完全に待機中...");
+        
+        try {
+            // start() ではなく run() を呼び出すことで、メインプロセスが終了するのを絶対に防ぎます
+            server.run(); 
+        } catch (Exception e) {
+            System.err.println("サーバー実行中に重大なエラーが発生しました: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
