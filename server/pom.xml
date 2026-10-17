@@ -1,22 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://apache.org"
+<project xmlns="http://apache.org" 
          xmlns:xsi="http://w3.org"
          xsi:schemaLocation="http://apache.org http://apache.org">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- あなたのアプリの情報（自由に変更してOKです） -->
     <groupId>com.example</groupId>
-    <artifactId>koyeb-websocket-server</artifactId>
+    <artifactId>game-server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- WebSocketサーバーを構築するための必須ライブラリ -->
+        <!-- Java-WebSocket ライブラリ -->
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
@@ -26,7 +23,7 @@
 
     <build>
         <plugins>
-            <!-- 依存ライブラリを1つのJARファイルにまとめるためのプラグイン（Koyebで動かすために必須） -->
+            <!-- 依存ライブラリを1つのJARにまとめるプラグイン（重要） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -34,14 +31,11 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
+                        <goals><goal>shade</goal></goals>
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- ⚠️重要: あなたのメインメソッド（Main）があるクラス名に書き換えてください -->
-                                    <mainClass>com.example.servers</mainClass>
+                                    <mainClass>GameServer</mainClass> <!-- あなたのMainクラス名 -->
                                 </transformer>
                             </transformers>
                         </configuration>
