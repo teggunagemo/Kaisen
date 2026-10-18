@@ -43,7 +43,7 @@ wss.on('connection', (ws) => {
 
     // 接続が切れたときの処理
     ws.on('close', () => {
-    const userId = sws.userId;
+    const userId = ws.userId;
     
     if (userId) {
       // MapからIDを指定して一発削除
