@@ -5,7 +5,7 @@ const port = process.env.PORT || 10000;
 const wss = new WebSocketServer({ port: port });
 
 // 接続中のプレイヤー一覧を管理するリスト
-const players = new Set();
+const players = new Map();
 
 wss.on('listening', () => {
     console.log(`Node.jsゲームサーバーがポート ${port} で正常に起動しました！`);
@@ -13,7 +13,12 @@ wss.on('listening', () => {
 
 wss.on('connection', (ws) => {
     // プレイヤーをリストに追加
-    players.add(ws);
+      const guestId = `guest_${crypto.randomUUID()}`;
+
+  // 2. ソケット自身にIDを覚えさせておく（切断時に使うため）
+  ws.userId = guestId;
+    players.set(guestId,ws);
+
     console.log(`プレイヤーが入室しました。現在の接続数: ${players.size}人`);
 
     // メッセージを受信したときの処理
@@ -25,7 +30,7 @@ wss.on('connection', (ws) => {
             ws.send('pong');
             return;
         }
-        ws.send("testing");
+        
         console.log(`受信データ: ${msgStr}`);
         
         // （例）受信したメッセージを、他の全プレイヤーにそのまま転送（ブロードキャスト）する場合
@@ -38,8 +43,13 @@ wss.on('connection', (ws) => {
 
     // 接続が切れたときの処理
     ws.on('close', () => {
-        players.delete(ws);
-        console.log(`プレイヤーが退室しました。現在の接続数: ${players.size}人`);
+    const userId = sws.userId;
+    
+    if (userId) {
+      // MapからIDを指定して一発削除
+      this.connectedPlayers.delete(userId);
+      console.log(`ユーザー ${userId} が切断。現在の合計: ${this.connectedPlayers.size}人`);
+    }
     });
 
     // エラーが起きたときの処理
