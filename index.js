@@ -25,7 +25,7 @@ wss.on('connection', (ws) => {
             ws.send('pong');
             return;
         }
-        
+        ws.send("testing");
         console.log(`受信データ: ${msgStr}`);
         
         // （例）受信したメッセージを、他の全プレイヤーにそのまま転送（ブロードキャスト）する場合
