@@ -1,4 +1,6 @@
 const { WebSocketServer } = require('ws');
+// cryptoモジュールが明示的に必要（Node.jsのバージョンによって必須）
+const crypto = require('crypto'); 
 
 // Renderが自動で割り当てるポート（10000番など）を読み込む
 const port = process.env.PORT || 10000;
@@ -13,11 +15,11 @@ wss.on('listening', () => {
 
 wss.on('connection', (ws) => {
     // プレイヤーをリストに追加
-      const guestId = `guest_${crypto.randomUUID()}`;
+    const guestId = `guest_${crypto.randomUUID()}`;
 
-  // 2. ソケット自身にIDを覚えさせておく（切断時に使うため）
-  ws.userId = guestId;
-    players.set(guestId,ws);
+    // 2. ソケット自身にIDを覚えさせておく（切断時に使うため）
+    ws.userId = guestId;
+    players.set(guestId, ws);
 
     console.log(`プレイヤーが入室しました。現在の接続数: ${players.size}人`);
 
@@ -33,23 +35,25 @@ wss.on('connection', (ws) => {
         
         console.log(`受信データ: ${msgStr}`);
         
-        // （例）受信したメッセージを、他の全プレイヤーにそのまま転送（ブロードキャスト）する場合
-        // for (let player of players) {
-        //     if (player !== ws && player.readyState === 1) {
-        //         player.send(msgStr);
-        //     }
-        // }
+        // 【修正1】Javaクライアントにパケットをそのまま転送するブロードキャスト処理
+        // Mapのループ処理を正しく修正しました
+        for (let [id, client] of players) {
+            // 自分以外のプレイヤー、かつ接続が正常なクライアントに送る
+            if (id !== ws.userId && client.readyState === 1) {
+                client.send(msgStr);
+            }
+        }
     });
 
     // 接続が切れたときの処理
     ws.on('close', () => {
-    const userId = ws.userId;
-    
-    if (userId) {
-      // MapからIDを指定して一発削除
-      this.connectedPlayers.delete(userId);
-      console.log(`ユーザー ${userId} が切断。現在の合計: ${this.connectedPlayers.size}人`);
-    }
+        const userId = ws.userId;
+        
+        if (userId) {
+            // 【修正2】正しく変数「players」から削除するよう修正
+            players.delete(userId);
+            console.log(`ユーザー ${userId} が切断。現在の合計: ${players.size}人`);
+        }
     });
 
     // エラーが起きたときの処理
